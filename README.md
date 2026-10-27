@@ -95,7 +95,7 @@
 ## 从源码构建
 
 ```bash
-git clone https://github.com/TCYS0/Torti-.git && cd Torti-
+git clone https://github.com/TCYS0/Torti.git && cd Torti
 ./build.sh                  # 编译 + 打包 Torti.app + dist/Torti-<版本>.dmg
 open "Torti.app"
 ```
