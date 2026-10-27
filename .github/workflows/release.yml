@@ -1,0 +1,54 @@
+name: Release
+
+# 打 tag（v1.0.0 这种）就自动编译通用二进制、打成 DMG、挂到 Release 页面
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 解析版本号
+        id: ver
+        run: |
+          if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
+            echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=0.0.0-dev" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 把版本号写进 Info.plist
+        run: |
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${{ steps.ver.outputs.version }}" Resources/Info.plist
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${GITHUB_RUN_NUMBER}" Resources/Info.plist
+
+      - name: 构建 DMG
+        run: |
+          chmod +x build.sh tools/make-dmg.sh
+          ./build.sh
+          ls -lh dist/
+
+      - name: 上传产物（每次构建都能下载）
+        uses: actions/upload-artifact@v4
+        with:
+          name: Torti-${{ steps.ver.outputs.version }}
+          path: |
+            dist/*.dmg
+            dist/*.sha256
+
+      - name: 发布到 Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.dmg
+            dist/*.sha256
+          generate_release_notes: true
+          draft: false

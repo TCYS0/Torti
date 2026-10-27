@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+._*
+
+# Swift Package Manager
+.build/
+.swiftpm/
+/Packages/
+
+# 构建产物（./build.sh 生成）
+*.app
+*.dSYM/
+*.iconset/
+dist/
+
+# 编辑器 / IDE
+.idea/
+.vscode/
+xcuserdata/
+*.xcuserstate
+
+# 本项目的本地工作数据（个人环境与记忆，不对外）
+.workbuddy/
